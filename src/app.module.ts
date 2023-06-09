@@ -44,8 +44,20 @@ import { SAUsersRepository } from './super_admin/sa_users/sa-users.repository';
 import { TypeOrmConfig } from './configs/type-orm.config';
 import { Users } from './super_admin/sa_users/applications/users.entity';
 import { Devices } from './public/devices/applications/devices.entity';
+import { CreateQuestionUseCases } from './super_admin/sa_quiz/applications/use-cases/create-question-use-case';
+import { DeleteQuestionUseCases } from './super_admin/sa_quiz/applications/use-cases/delete-question-use-cases';
+import { UpdateQuestionUseCases } from './super_admin/sa_quiz/applications/use-cases/update-question-use-cases';
+import { PublishQuestionUseCases } from './super_admin/sa_quiz/applications/use-cases/publish-question-use-cases';
+import { Questions } from './super_admin/sa_quiz/applications/questions.entity';
+import { SAQuestionsRepository } from './super_admin/sa_quiz/sa-questions.repository';
+import { SAQuestionsService } from './super_admin/sa_quiz/sa-questions.service';
+import { SAQuestionsController } from './super_admin/sa_quiz/sa-questions.controller';
 
 const useCases = [
+  CreateQuestionUseCases,
+  DeleteQuestionUseCases,
+  UpdateQuestionUseCases,
+  PublishQuestionUseCases,
   BanUserUseCases,
   CreateUserByAdminUseCases,
   DeleteUserUseCases,
@@ -73,10 +85,22 @@ const decorators = [
   ValidateRegistrationConfirmationCodeRule,
   ValidateEmailForResendCodeRule,
 ];
-const repositories = [SAUsersRepository, AuthRepository, DevicesRepository];
-const services = [AuthService, AppService, SAUsersService, DevicesService];
+const repositories = [
+  SAUsersRepository,
+  AuthRepository,
+  DevicesRepository,
+  SAQuestionsRepository,
+];
+const services = [
+  AuthService,
+  AppService,
+  SAUsersService,
+  DevicesService,
+  SAQuestionsService,
+];
 const adapters = [EmailAdapter];
 const controllers = [
+  SAQuestionsController,
   AppController,
   TestingController,
   SAUsersController,
@@ -101,7 +125,7 @@ const controllers = [
       useClass: TypeOrmConfig,
       imports: [ConfigModule],
     }),
-    TypeOrmModule.forFeature([Users, Devices]),
+    TypeOrmModule.forFeature([Users, Devices, Questions]),
   ],
   controllers: [...controllers],
   providers: [

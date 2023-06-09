@@ -1,10 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { SAUsersRepository } from './sa-users.repository';
-import { QueryUsersDTO, SAUserInfoDTO } from './applications/sa-users.dto';
 import { Result, ResultCode } from '../../helpers/contract';
 import { Paginated } from '../../helpers/paginated';
 import { Users } from './applications/users.entity';
-
+import { QueryUsersDTO, SAUserInfoDTO } from './applications/sa-users.dto';
+import { SAUsersRepository } from './sa-users.repository';
 @Injectable()
 export class SAUsersService {
   constructor(protected saUsersRepository: SAUsersRepository) {}

@@ -3,6 +3,7 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Users } from '../super_admin/sa_users/applications/users.entity';
 import { Devices } from '../public/devices/applications/devices.entity';
+import { Questions } from '../super_admin/sa_quiz/applications/questions.entity';
 
 @Injectable()
 export class TypeOrmConfig implements TypeOrmOptionsFactory {
@@ -13,7 +14,7 @@ export class TypeOrmConfig implements TypeOrmOptionsFactory {
       type: 'postgres',
       url: this.configService.get('DB_URL'),
       autoLoadEntities: true,
-      entities: [Users, Devices],
+      entities: [Users, Devices, Questions],
       synchronize: true,
     };
   }
