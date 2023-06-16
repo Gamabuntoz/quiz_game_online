@@ -19,7 +19,7 @@ export class GamesService {
       return new Result<GameViewDTO>(
         ResultCode.NotFound,
         null,
-        'Active game not found',
+        'Active game not  found',
       );
     const currentUserGame = await this.createGameView(game);
     return new Result<GameViewDTO>(ResultCode.Success, currentUserGame, null);
