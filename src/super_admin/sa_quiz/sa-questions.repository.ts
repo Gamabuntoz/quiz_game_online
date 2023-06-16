@@ -80,6 +80,7 @@ export class SAQuestionsRepository {
       {
         body: inputData.body,
         correctAnswers: inputData.correctAnswers,
+        updatedAt: new Date().toISOString(),
       },
     );
     return result.affected === 1;
@@ -93,6 +94,7 @@ export class SAQuestionsRepository {
       { id: questionId },
       {
         published: inputData.published,
+        updatedAt: new Date().toISOString(),
       },
     );
     return result.affected === 1;

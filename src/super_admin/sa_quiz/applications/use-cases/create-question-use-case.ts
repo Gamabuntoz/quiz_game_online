@@ -24,7 +24,7 @@ export class CreateQuestionUseCases
       correctAnswers: command.inputData.correctAnswers,
       published: false,
       createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
+      updatedAt: null,
     };
     await this.saQuestionsRepository.createQuestion(newQuestion);
     const questionView = new QuestionInfoDTO(

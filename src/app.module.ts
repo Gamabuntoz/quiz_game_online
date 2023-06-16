@@ -52,8 +52,17 @@ import { Questions } from './super_admin/sa_quiz/applications/questions.entity';
 import { SAQuestionsRepository } from './super_admin/sa_quiz/sa-questions.repository';
 import { SAQuestionsService } from './super_admin/sa_quiz/sa-questions.service';
 import { SAQuestionsController } from './super_admin/sa_quiz/sa-questions.controller';
+import { GamesRepository } from './public/games/games.repository';
+import { GamesService } from './public/games/games.service';
+import { GamesController } from './public/games/games.controller';
+import { SendAnswerUseCases } from './public/games/applications/use-cases/send-answer-for-question-use-cases';
+import { StartNewGameUseCases } from './public/games/applications/use-cases/start-new-game-or-connect-to-pending-pair-use-cases';
+import { Answers } from './public/games/applications/answers.entity';
+import { Games } from './public/games/applications/games.entity';
 
 const useCases = [
+  SendAnswerUseCases,
+  StartNewGameUseCases,
   CreateQuestionUseCases,
   DeleteQuestionUseCases,
   UpdateQuestionUseCases,
@@ -86,12 +95,14 @@ const decorators = [
   ValidateEmailForResendCodeRule,
 ];
 const repositories = [
+  GamesRepository,
   SAUsersRepository,
   AuthRepository,
   DevicesRepository,
   SAQuestionsRepository,
 ];
 const services = [
+  GamesService,
   AuthService,
   AppService,
   SAUsersService,
@@ -100,6 +111,7 @@ const services = [
 ];
 const adapters = [EmailAdapter];
 const controllers = [
+  GamesController,
   SAQuestionsController,
   AppController,
   TestingController,
@@ -125,7 +137,7 @@ const controllers = [
       useClass: TypeOrmConfig,
       imports: [ConfigModule],
     }),
-    TypeOrmModule.forFeature([Users, Devices, Questions]),
+    TypeOrmModule.forFeature([Users, Devices, Questions, Answers, Games]),
   ],
   controllers: [...controllers],
   providers: [

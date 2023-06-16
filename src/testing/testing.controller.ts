@@ -11,13 +11,10 @@ export class TestingController {
     }
     await this.dataSource.query(
       `
-      DELETE FROM "comment_likes" CASCADE;
-      DELETE FROM "comments" CASCADE;
-      DELETE FROM "post_likes" CASCADE;
+      DELETE FROM "questions" CASCADE;
+      DELETE FROM "answers" CASCADE;
+      DELETE FROM "games" CASCADE;
       DELETE FROM "devices" CASCADE;
-      DELETE FROM "posts" CASCADE;
-      DELETE FROM "ban_user_for_blog" CASCADE;
-      DELETE FROM "blogs" CASCADE;
       DELETE FROM "users" CASCADE;
       `,
     );
