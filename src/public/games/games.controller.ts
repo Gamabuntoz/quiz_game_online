@@ -55,7 +55,7 @@ export class GamesController {
   //
   @HttpCode(HttpStatus.OK)
   @UseGuards(JwtAccessAuthGuard)
-  @Post('connections')
+  @Post('connection')
   async startNewGame(@CurrentUserId() currentUserId) {
     const result = await this.commandBus.execute(
       new StartNewGameCommand(currentUserId),

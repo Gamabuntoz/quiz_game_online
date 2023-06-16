@@ -57,17 +57,17 @@ export class GamesRepository {
       .orderBy('RANDOM()')
       .limit(5)
       .getMany();
-    const result = await this.dbGamesRepository.update(
-      { status: 'PendingSecondPlayer' },
-      {
-        secondPlayerId: userId,
-        secondPlayerLogin: userLogin,
-        startGameDate: new Date().toISOString(),
-        questions: questions,
-        status: 'Active',
-      },
-    );
-    return result.affected === 1;
+    const instance = await this.dbGamesRepository.findOne({
+      where: { status: 'PendingSecondPlayer' },
+    });
+    if (!instance) return false;
+    instance.secondPlayerId = userId;
+    instance.secondPlayerLogin = userLogin;
+    instance.startGameDate = new Date().toISOString();
+    instance.questions = questions;
+    instance.status = 'Active';
+    await this.dbGamesRepository.save(instance);
+    return !!instance;
   }
 
   async saveAnswer(newAnswer: Answers) {

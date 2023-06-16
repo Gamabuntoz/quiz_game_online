@@ -37,7 +37,7 @@ export class GamesService {
         'Game not found',
       );
     if (
-      currentUserId !== game.firstPlayerId ||
+      currentUserId !== game.firstPlayerId &&
       currentUserId !== game.secondPlayerId
     )
       return new Result<GameViewDTO>(

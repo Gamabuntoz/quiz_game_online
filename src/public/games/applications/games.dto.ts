@@ -9,7 +9,6 @@ import {
 
 export class InputAnswerDTO {
   @IsString()
-  @Length(80)
   answer: string;
 }
 
