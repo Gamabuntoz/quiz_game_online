@@ -49,7 +49,7 @@ export class GamesService {
     return new Result<GameViewDTO>(ResultCode.Success, currentUserGame, null);
   }
 
-  async createGameView(game: Games) {
+  async createGameView(game: Games): Promise<GameViewDTO> {
     const firstPlayerAnswers: Answers[] =
       await this.gamesRepository.findPlayerGameAnswers(
         game.id,
@@ -74,18 +74,21 @@ export class GamesService {
         },
         score: game.firstPlayerScore,
       },
-      secondPlayerProgress: {
-        answers: secondPlayerAnswers.map((as) => ({
-          questionId: as.questionId,
-          answerStatus: as.answerStatus,
-          addedAt: as.addedAt,
-        })),
-        player: {
-          id: game.secondPlayerId,
-          login: game.secondPlayerLogin,
-        },
-        score: game.secondPlayerScore,
-      },
+      secondPlayerProgress:
+        game.status === 'PendingSecondPlayer'
+          ? null
+          : {
+              answers: secondPlayerAnswers.map((as) => ({
+                questionId: as.questionId,
+                answerStatus: as.answerStatus,
+                addedAt: as.addedAt,
+              })),
+              player: {
+                id: game.secondPlayerId,
+                login: game.secondPlayerLogin,
+              },
+              score: game.secondPlayerScore,
+            },
       questions:
         game.status === 'PendingSecondPlayer'
           ? null

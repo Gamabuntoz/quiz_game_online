@@ -42,8 +42,8 @@ export class GameViewDTO {
   constructor(
     public id: string,
     public firstPlayerProgress: PlayerViewDTO,
-    public secondPlayerProgress: PlayerViewDTO,
-    public questions: Questions[],
+    public secondPlayerProgress: PlayerViewDTO | null,
+    public questions: Questions[] | null,
     public status: string,
     public pairCreatedDate: string,
     public startGameDate: string,
