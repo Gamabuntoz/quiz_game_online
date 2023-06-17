@@ -72,7 +72,7 @@ export class GamesService {
           id: game.firstPlayerId,
           login: game.firstPlayerLogin,
         },
-        score: game.firstPlayerScore,
+        score: +game.firstPlayerScore,
       },
       secondPlayerProgress:
         game.status === 'PendingSecondPlayer'
@@ -87,7 +87,7 @@ export class GamesService {
                 id: game.secondPlayerId,
                 login: game.secondPlayerLogin,
               },
-              score: game.secondPlayerScore,
+              score: +game.secondPlayerScore,
             },
       questions:
         game.status === 'PendingSecondPlayer'
