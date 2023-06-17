@@ -17,13 +17,13 @@ export class Games {
   firstPlayerId: string;
   @Column()
   firstPlayerLogin: string;
-  @Column({ type: 'numeric' })
+  @Column()
   firstPlayerScore: number;
   @Column({ nullable: true })
   secondPlayerId: string | null;
   @Column({ nullable: true })
   secondPlayerLogin: string | null;
-  @Column({ type: 'numeric' })
+  @Column()
   secondPlayerScore: number;
   @OneToMany(() => Questions, (q) => q.game, {})
   questions: Questions[];
