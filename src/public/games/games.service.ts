@@ -15,7 +15,6 @@ export class GamesService {
     const game: Games = await this.gamesRepository.findOpenGameByUserId(
       currentUserId,
     );
-    console.log(game);
     if (!game || game.finishGameDate)
       return new Result<GameViewDTO>(
         ResultCode.NotFound,
