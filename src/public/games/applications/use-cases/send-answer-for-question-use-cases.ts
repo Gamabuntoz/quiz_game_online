@@ -56,9 +56,7 @@ export class SendAnswerUseCases implements ICommandHandler<SendAnswerCommand> {
     if (
       playerAnswers.length + 1 === 5 &&
       secondPlayerAnswers.length < 5 &&
-      isFirstPlayer
-        ? game.firstPlayerScore > 0
-        : game.secondPlayerScore > 0
+      (isFirstPlayer ? game.firstPlayerScore > 0 : game.secondPlayerScore > 0)
     ) {
       isFirstPlayer
         ? (game.firstPlayerScore += 1)
