@@ -27,7 +27,7 @@ export class StartNewGameUseCases
     const checkUserGame = await this.gamesRepository.findOpenGameByUserId(
       user.id,
     );
-    if (!checkUserGame.finishGameDate)
+    if (checkUserGame && !checkUserGame.finishGameDate)
       return new Result<GameViewDTO>(
         ResultCode.Forbidden,
         null,
