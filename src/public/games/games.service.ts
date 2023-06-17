@@ -15,6 +15,7 @@ export class GamesService {
     const game: Games = await this.gamesRepository.findOpenGameByUserId(
       currentUserId,
     );
+    console.log(game);
     if (!game || game.finishGameDate)
       return new Result<GameViewDTO>(
         ResultCode.NotFound,
@@ -72,7 +73,7 @@ export class GamesService {
           id: game.firstPlayerId,
           login: game.firstPlayerLogin,
         },
-        score: +game.firstPlayerScore,
+        score: game.firstPlayerScore,
       },
       secondPlayerProgress:
         game.status === 'PendingSecondPlayer'
@@ -87,7 +88,7 @@ export class GamesService {
                 id: game.secondPlayerId,
                 login: game.secondPlayerLogin,
               },
-              score: +game.secondPlayerScore,
+              score: game.secondPlayerScore,
             },
       questions:
         game.status === 'PendingSecondPlayer'
