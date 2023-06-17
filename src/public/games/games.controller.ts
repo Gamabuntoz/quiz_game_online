@@ -14,7 +14,7 @@ import { CommandBus } from '@nestjs/cqrs';
 import { SendAnswerCommand } from './applications/use-cases/send-answer-for-question-use-cases';
 import { Result, ResultCode } from '../../helpers/contract';
 import { JwtAccessAuthGuard } from '../../security/guards/jwt-access-auth.guard';
-import { InputAnswerDTO } from './applications/games.dto';
+import { InputAnswerDTO, InputId } from './applications/games.dto';
 import { StartNewGameCommand } from './applications/use-cases/start-new-game-or-connect-to-pending-pair-use-cases';
 
 @Controller('pair-game-quiz/pairs/')
@@ -39,12 +39,12 @@ export class GamesController {
 
   @HttpCode(HttpStatus.OK)
   @UseGuards(JwtAccessAuthGuard)
-  @Get(':gameId')
-  async findGameById(
-    @Param('gameId') gameId: string,
-    @CurrentUserId() currentUserId,
-  ) {
-    const result = await this.gamesService.findGameById(gameId, currentUserId);
+  @Get(':id')
+  async findGameById(@Param() gameId: InputId, @CurrentUserId() currentUserId) {
+    const result = await this.gamesService.findGameById(
+      gameId.id,
+      currentUserId,
+    );
     if (result.code !== ResultCode.Success) {
       Result.sendResultError(result.code);
     }

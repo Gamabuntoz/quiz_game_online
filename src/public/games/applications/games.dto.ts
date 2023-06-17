@@ -1,15 +1,13 @@
-import {
-  IsBoolean,
-  IsNotEmpty,
-  IsOptional,
-  IsString,
-  Length,
-  ValidateIf,
-} from 'class-validator';
+import { IsString, IsUUID } from 'class-validator';
 
 export class InputAnswerDTO {
   @IsString()
   answer: string;
+}
+
+export class InputId {
+  @IsUUID()
+  id: string;
 }
 
 class PlayerAnswers {
