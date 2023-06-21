@@ -1,11 +1,4 @@
-import {
-  Column,
-  Entity,
-  JoinColumn,
-  ManyToOne,
-  PrimaryGeneratedColumn,
-} from 'typeorm';
-import { Games } from '../../../public/games/applications/games.entity';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
 export class Questions {
@@ -21,7 +14,4 @@ export class Questions {
   createdAt: string;
   @Column({ nullable: true })
   updatedAt: string | null;
-  @ManyToOne(() => Games, { cascade: true, nullable: true })
-  @JoinColumn({ name: 'gameId' })
-  game?: Games;
 }

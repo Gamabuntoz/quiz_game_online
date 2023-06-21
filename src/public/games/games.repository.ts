@@ -51,7 +51,7 @@ export class GamesRepository {
     userId: string,
     userLogin: string,
   ): Promise<boolean> {
-    const questions = await this.dbQuestionsRepository
+    const gameQuestions = await this.dbQuestionsRepository
       .createQueryBuilder('q')
       .select()
       .orderBy('RANDOM()')
@@ -64,7 +64,7 @@ export class GamesRepository {
     instance.secondPlayerId = userId;
     instance.secondPlayerLogin = userLogin;
     instance.startGameDate = new Date().toISOString();
-    instance.questions = questions;
+    instance.questions = gameQuestions;
     instance.status = 'Active';
     await this.dbGamesRepository.save(instance);
     return !!instance;

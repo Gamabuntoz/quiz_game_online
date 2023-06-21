@@ -6,7 +6,7 @@ import { initApp } from './app.settings';
 export async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   initApp(app);
-  //app.useGlobalFilters(new HttpExceptionFilter(), new DamainExceptionFilter());
+  //app.useGlobalFilters(new HttpExceptionFilter());
   await app.listen(5000);
 }
 bootstrap();

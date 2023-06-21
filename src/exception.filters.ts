@@ -12,23 +12,42 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
     const request = ctx.getRequest<Request>();
-    const status = exception.getStatus();
+    try {
+      const status = exception.getStatus();
 
-    if (status === 400) {
-      const errorResponse = {
-        errorsMessages: [],
-      };
-      const responseBody: any = exception.getResponse();
+      if (status === 400) {
+        try {
+          const errorResponse = {
+            errorsMessages: [],
+          };
+          const responseBody: any = exception.getResponse();
+          responseBody.message.forEach((m) =>
+            errorResponse.errorsMessages.push(m),
+          );
 
-      responseBody.message.forEach((m) => errorResponse.errorsMessages.push(m));
+          return response.status(status).json(errorResponse);
+        } catch (e) {
+          const errorResponse = {
+            errorsMessages: [],
+          };
+          const responseBody: any = exception.getResponse();
+          responseBody.errorsMessages.forEach((m) =>
+            errorResponse.errorsMessages.push(m),
+          );
 
-      response.status(status).json(errorResponse);
-    } else {
-      response.status(status).json({
-        statusCode: status,
-        timestamp: new Date().toISOString(),
-        path: request.url,
-      });
+          return response.status(status).json(errorResponse);
+        }
+      } else {
+        console.log(exception.getResponse());
+        response.status(status).json({
+          statusCode: status,
+          timestamp: new Date().toISOString(),
+          path: request.url,
+        });
+      }
+    } catch (e) {
+      console.log(e);
+      return response.sendStatus(404);
     }
   }
 }

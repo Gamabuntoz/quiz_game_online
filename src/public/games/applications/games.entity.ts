@@ -1,4 +1,10 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  ManyToMany,
+  PrimaryGeneratedColumn,
+  JoinTable,
+} from 'typeorm';
 import { Questions } from '../../../super_admin/sa_quiz/applications/questions.entity';
 
 @Entity()
@@ -25,6 +31,7 @@ export class Games {
   secondPlayerLogin: string | null;
   @Column()
   secondPlayerScore: number;
-  @OneToMany(() => Questions, (q) => q.game, {})
+  @ManyToMany(() => Questions)
+  @JoinTable()
   questions: Questions[];
 }
