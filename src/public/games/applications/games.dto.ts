@@ -50,3 +50,23 @@ export class GameViewDTO {
     public finishGameDate: string,
   ) {}
 }
+
+export class QueryGamesDTO {
+  constructor(
+    public sortBy: string,
+    public sortDirection: 'ASC' | 'DESC' | string = 'DESC',
+    public pageNumber: number = 1,
+    public pageSize: number = 10,
+  ) {}
+}
+
+export class GameStatisticView {
+  constructor(
+    public sumScore: number,
+    public avgScores: number,
+    public gamesCount: number,
+    public winsCount: number,
+    public lossesCount: number,
+    public drawsCount: number,
+  ) {}
+}

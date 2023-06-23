@@ -38,6 +38,7 @@ export class SendAnswerUseCases implements ICommandHandler<SendAnswerCommand> {
           'User already answered to all questions',
         );
       const currentQuestion = game.questions[playerAnswers.length];
+      console.table(game.questions);
       const newAnswer: Answers = {
         id: uuidv4(),
         questionId: currentQuestion.id,
@@ -60,13 +61,19 @@ export class SendAnswerUseCases implements ICommandHandler<SendAnswerCommand> {
         );
       if (playerAnswers.length + 1 + secondPlayerAnswers.length === 10) {
         game.status = 'Finished';
-        game.finishGameDate = new Date().toISOString();
+        game.finishGameDate = new Date();
         if (
           isFirstPlayer ? game.secondPlayerScore > 0 : game.firstPlayerScore > 0
         ) {
           isFirstPlayer
             ? (game.secondPlayerScore += 1)
             : (game.firstPlayerScore += 1);
+        }
+        if (game.firstPlayerScore > game.secondPlayerScore) {
+          game.winner = 1;
+        }
+        if (game.firstPlayerScore < game.secondPlayerScore) {
+          game.winner = 2;
         }
       }
       const result = await this.gamesRepository.updateGame(game);

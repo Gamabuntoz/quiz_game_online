@@ -8,6 +8,7 @@ import { SAUsersService } from '../../sa-users.service';
 import { SAUsersRepository } from '../../sa-users.repository';
 import { InputRegistrationDTO } from '../../../../public/auth/applications/auth.dto';
 import { Users } from '../users.entity';
+import { GamesRepository } from '../../../../public/games/games.repository';
 
 export class CreateUserByAdminCommand {
   constructor(public inputData: InputRegistrationDTO) {}
@@ -20,6 +21,7 @@ export class CreateUserByAdminUseCases
   constructor(
     private saUsersService: SAUsersService,
     private saUsersRepository: SAUsersRepository,
+    private gamesRepository: GamesRepository,
   ) {}
 
   async execute(

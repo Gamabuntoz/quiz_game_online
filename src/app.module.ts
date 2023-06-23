@@ -59,6 +59,7 @@ import { SendAnswerUseCases } from './public/games/applications/use-cases/send-a
 import { StartNewGameUseCases } from './public/games/applications/use-cases/start-new-game-or-connect-to-pending-pair-use-cases';
 import { Answers } from './public/games/applications/answers.entity';
 import { Games } from './public/games/applications/games.entity';
+import { GameQuestions } from './public/games/applications/questions_for_game.entity';
 
 const useCases = [
   SendAnswerUseCases,
@@ -137,7 +138,14 @@ const controllers = [
       useClass: TypeOrmConfig,
       imports: [ConfigModule],
     }),
-    TypeOrmModule.forFeature([Users, Devices, Questions, Answers, Games]),
+    TypeOrmModule.forFeature([
+      Users,
+      Devices,
+      Questions,
+      Answers,
+      Games,
+      GameQuestions,
+    ]),
   ],
   controllers: [...controllers],
   providers: [

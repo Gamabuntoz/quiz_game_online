@@ -1,4 +1,10 @@
-import { Entity, JoinTable, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinTable,
+  OneToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { Games } from './games.entity';
 import { Questions } from '../../../super_admin/sa_quiz/applications/questions.entity';
 

@@ -4,6 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Answers } from './applications/answers.entity';
 import { Questions } from '../../super_admin/sa_quiz/applications/questions.entity';
+import { QueryGamesDTO } from './applications/games.dto';
 
 @Injectable()
 export class GamesRepository {
@@ -15,6 +16,40 @@ export class GamesRepository {
     @InjectRepository(Questions)
     private readonly dbQuestionsRepository: Repository<Questions>,
   ) {}
+
+  async totalCountCurrentUserGames(queryData: QueryGamesDTO, userId: string) {
+    const queryBuilder = await this.dbGamesRepository
+      .createQueryBuilder('g')
+      .where('g.firstPlayerId = :userId OR g.secondPlayerId = :userId', {
+        userId: userId,
+      });
+    return queryBuilder.getCount();
+  }
+
+  async findAllCurrentUserGames(queryData: QueryGamesDTO, userId: string) {
+    let sortBy: any = {
+      pairCreatedDate: 'DESC',
+    };
+    if (queryData.sortBy && queryData.sortBy !== 'pairCreatedDate') {
+      sortBy = {
+        [queryData.sortBy]: queryData.sortDirection.toUpperCase(),
+        pairCreatedDate: 'DESC',
+      };
+    }
+    return this.dbGamesRepository.find({
+      where: [{ firstPlayerId: userId }, { secondPlayerId: userId }],
+      order: sortBy,
+      take: queryData.pageSize,
+      skip: (queryData.pageNumber - 1) * queryData.pageSize,
+      relations: ['questions'],
+    });
+  }
+
+  async findAllCurrentUserGamesForStat(userId: string) {
+    return this.dbGamesRepository.find({
+      where: [{ firstPlayerId: userId }, { secondPlayerId: userId }],
+    });
+  }
 
   async findOpenGameByUserId(currentUserId: string) {
     return this.dbGamesRepository.findOne({
@@ -50,8 +85,8 @@ export class GamesRepository {
   async joinToGameInPending(
     userId: string,
     userLogin: string,
-  ): Promise<boolean> {
-    const gameQuestions = await this.dbQuestionsRepository
+  ): Promise<Games | boolean> {
+    const questions = await this.dbQuestionsRepository
       .createQueryBuilder('q')
       .select()
       .orderBy('RANDOM()')
@@ -61,13 +96,15 @@ export class GamesRepository {
       where: { status: 'PendingSecondPlayer' },
     });
     if (!instance) return false;
+    const questionsId = questions.map((q) => q.id);
     instance.secondPlayerId = userId;
     instance.secondPlayerLogin = userLogin;
-    instance.startGameDate = new Date().toISOString();
-    instance.questions = gameQuestions;
+    instance.startGameDate = new Date();
+    instance.questions = questions;
+    instance.questionsId = questionsId;
     instance.status = 'Active';
     await this.dbGamesRepository.save(instance);
-    return !!instance;
+    return instance;
   }
 
   async saveAnswer(newAnswer: Answers) {

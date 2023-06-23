@@ -11,8 +11,9 @@ export class TestingController {
     }
     await this.dataSource.query(
       `
+      DELETE FROM "answers" CASCADE; 
+      DELETE FROM "game_questions" CASCADE;
       DELETE FROM "questions" CASCADE;
-      DELETE FROM "answers" CASCADE;
       DELETE FROM "games" CASCADE;
       DELETE FROM "devices" CASCADE;
       DELETE FROM "users" CASCADE;

@@ -8,6 +8,7 @@ import add from 'date-fns/add';
 import { UserInfoDTO } from '../users.dto';
 import { Result, ResultCode } from '../../../../helpers/contract';
 import { Users } from '../../../../super_admin/sa_users/applications/users.entity';
+import { GamesRepository } from '../../../games/games.repository';
 
 export class RegistrationUserCommand {
   constructor(public inputData: InputRegistrationDTO) {}
@@ -20,6 +21,7 @@ export class RegistrationUserUseCases
   constructor(
     private authRepository: AuthRepository,
     private emailAdapter: EmailAdapter,
+    private gamesRepository: GamesRepository,
   ) {}
 
   async execute(command: RegistrationUserCommand): Promise<Result<boolean>> {

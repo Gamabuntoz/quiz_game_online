@@ -6,6 +6,7 @@ import { Devices } from '../public/devices/applications/devices.entity';
 import { Questions } from '../super_admin/sa_quiz/applications/questions.entity';
 import { Answers } from '../public/games/applications/answers.entity';
 import { Games } from '../public/games/applications/games.entity';
+import { GameQuestions } from '../public/games/applications/questions_for_game.entity';
 
 @Injectable()
 export class TypeOrmConfig implements TypeOrmOptionsFactory {
@@ -16,7 +17,7 @@ export class TypeOrmConfig implements TypeOrmOptionsFactory {
       type: 'postgres',
       url: this.configService.get('DB_URL'),
       autoLoadEntities: true,
-      entities: [Users, Devices, Questions, Answers, Games],
+      entities: [Users, Devices, Questions, Answers, Games, GameQuestions],
       synchronize: true,
     };
   }

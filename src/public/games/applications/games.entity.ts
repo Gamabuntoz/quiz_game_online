@@ -1,9 +1,9 @@
 import {
   Column,
   Entity,
+  JoinTable,
   ManyToMany,
   PrimaryGeneratedColumn,
-  JoinTable,
 } from 'typeorm';
 import { Questions } from '../../../super_admin/sa_quiz/applications/questions.entity';
 
@@ -11,12 +11,12 @@ import { Questions } from '../../../super_admin/sa_quiz/applications/questions.e
 export class Games {
   @PrimaryGeneratedColumn('uuid')
   id: string;
-  @Column()
-  pairCreatedDate: string;
-  @Column({ nullable: true })
-  startGameDate: string | null;
-  @Column({ nullable: true })
-  finishGameDate: string | null;
+  @Column({ type: 'timestamp', nullable: true })
+  pairCreatedDate: Date;
+  @Column({ type: 'timestamp', nullable: true })
+  startGameDate: Date | null;
+  @Column({ type: 'timestamp', nullable: true })
+  finishGameDate: Date | null;
   @Column()
   status: string;
   @Column()
@@ -34,4 +34,8 @@ export class Games {
   @ManyToMany(() => Questions)
   @JoinTable()
   questions: Questions[];
+  @Column('text', { array: true, nullable: true })
+  questionsId: string[];
+  @Column({ nullable: true })
+  winner: number | null;
 }

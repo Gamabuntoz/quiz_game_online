@@ -36,7 +36,7 @@ export class SAUsersService {
       );
     } catch (e) {
       console.log(e.message);
-      console.log('catch in the pagination');
+      console.log('catch in the all users pagination');
     }
   }
 }

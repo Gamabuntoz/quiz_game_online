@@ -33,20 +33,19 @@ export class StartNewGameUseCases
         null,
         'User already connect to open game',
       );
-    const tryJoinToGame = await this.gamesRepository.joinToGameInPending(
+    const gameInPending = await this.gamesRepository.joinToGameInPending(
       user.id,
       user.login,
     );
-    if (tryJoinToGame) {
-      const game: Games = await this.gamesRepository.findOpenGameByUserId(
-        user.id,
+    if (gameInPending) {
+      const currentUserGame = await this.gamesService.createGameView(
+        gameInPending as Games,
       );
-      const currentUserGame = await this.gamesService.createGameView(game);
       return new Result<GameViewDTO>(ResultCode.Success, currentUserGame, null);
     }
     const newGame: Games = {
       id: uuidv4(),
-      pairCreatedDate: new Date().toISOString(),
+      pairCreatedDate: new Date(),
       startGameDate: null,
       finishGameDate: null,
       status: 'PendingSecondPlayer',
@@ -57,6 +56,8 @@ export class StartNewGameUseCases
       secondPlayerLogin: null,
       secondPlayerScore: 0,
       questions: [],
+      questionsId: [],
+      winner: 0,
     };
     await this.gamesRepository.createNewGame(newGame);
     const currentUserGame = await this.gamesService.createGameView(newGame);
