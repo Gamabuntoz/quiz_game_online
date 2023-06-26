@@ -9,6 +9,7 @@ import { UserInfoDTO } from '../users.dto';
 import { Result, ResultCode } from '../../../../helpers/contract';
 import { Users } from '../../../../super_admin/sa_users/applications/users.entity';
 import { GamesRepository } from '../../../games/games.repository';
+import { Statistics } from '../../../games/applications/statistics.entity';
 
 export class RegistrationUserCommand {
   constructor(public inputData: InputRegistrationDTO) {}
@@ -64,6 +65,19 @@ export class RegistrationUserUseCases
       devices: [],
     };
     await this.authRepository.createUser(newUser);
+    const userGamesStat: Statistics = {
+      id: uuidv4(),
+      sumScore: 0,
+      avgScores: 0,
+      gamesCount: 0,
+      winsCount: 0,
+      lossesCount: 0,
+      drawsCount: 0,
+      user: newUser,
+      userId: newUser.id,
+      userLogin: newUser.login,
+    };
+    await this.gamesRepository.createUserGamesStat(userGamesStat);
     return new UserInfoDTO(
       newUser.id,
       newUser.login,

@@ -9,6 +9,7 @@ import { SAUsersRepository } from '../../sa-users.repository';
 import { InputRegistrationDTO } from '../../../../public/auth/applications/auth.dto';
 import { Users } from '../users.entity';
 import { GamesRepository } from '../../../../public/games/games.repository';
+import { Statistics } from '../../../../public/games/applications/statistics.entity';
 
 export class CreateUserByAdminCommand {
   constructor(public inputData: InputRegistrationDTO) {}
@@ -51,6 +52,19 @@ export class CreateUserByAdminUseCases
       devices: [],
     };
     await this.saUsersRepository.createUser(newUser);
+    const userGamesStat: Statistics = {
+      id: uuidv4(),
+      sumScore: 0,
+      avgScores: 0,
+      gamesCount: 0,
+      winsCount: 0,
+      lossesCount: 0,
+      drawsCount: 0,
+      user: newUser,
+      userId: newUser.id,
+      userLogin: newUser.login,
+    };
+    await this.gamesRepository.createUserGamesStat(userGamesStat);
     const userView = new SAUserInfoDTO(
       newUser.id,
       newUser.login,

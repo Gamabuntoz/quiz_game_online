@@ -60,6 +60,7 @@ import { StartNewGameUseCases } from './public/games/applications/use-cases/star
 import { Answers } from './public/games/applications/answers.entity';
 import { Games } from './public/games/applications/games.entity';
 import { GameQuestions } from './public/games/applications/questions_for_game.entity';
+import { Statistics } from './public/games/applications/statistics.entity';
 
 const useCases = [
   SendAnswerUseCases,
@@ -145,6 +146,7 @@ const controllers = [
       Answers,
       Games,
       GameQuestions,
+      Statistics,
     ]),
   ],
   controllers: [...controllers],

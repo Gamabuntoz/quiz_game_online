@@ -4,7 +4,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Answers } from './applications/answers.entity';
 import { Questions } from '../../super_admin/sa_quiz/applications/questions.entity';
-import { QueryGamesDTO } from './applications/games.dto';
+import { QueryGamesDTO, QueryTopPlayersDTO } from './applications/games.dto';
+import { Statistics } from './applications/statistics.entity';
 
 @Injectable()
 export class GamesRepository {
@@ -15,7 +16,45 @@ export class GamesRepository {
     private readonly dbAnswersRepository: Repository<Answers>,
     @InjectRepository(Questions)
     private readonly dbQuestionsRepository: Repository<Questions>,
+    @InjectRepository(Statistics)
+    private readonly dbStatisticsRepository: Repository<Statistics>,
   ) {}
+
+  async createUserGamesStat(stat: Statistics) {
+    await this.dbStatisticsRepository.insert(stat);
+    return stat;
+  }
+
+  async saveGamesUserStat(stat: Statistics) {
+    await this.dbStatisticsRepository.save(stat);
+    return stat;
+  }
+
+  async findGamesUserStat(userId: string) {
+    return this.dbStatisticsRepository.findOne({ where: { userId: userId } });
+  }
+
+  async totalCountPlayersGamesStat() {
+    return this.dbStatisticsRepository.count();
+  }
+
+  async findTopPlayersGamesStat(queryData: QueryTopPlayersDTO) {
+    const sortBy = {};
+    if (Array.isArray(queryData.sort)) {
+      queryData.sort.forEach((s) => {
+        const sort = s.split(' ');
+        sortBy[sort[0]] = sort[1];
+      });
+    } else {
+      const sort = queryData.sort.split(' ');
+      sortBy[sort[0]] = sort[1];
+    }
+    return this.dbStatisticsRepository.find({
+      order: sortBy,
+      take: queryData.pageSize,
+      skip: (queryData.pageNumber - 1) * queryData.pageSize,
+    });
+  }
 
   async totalCountCurrentUserGames(queryData: QueryGamesDTO, userId: string) {
     const queryBuilder = await this.dbGamesRepository
@@ -42,12 +81,6 @@ export class GamesRepository {
       take: queryData.pageSize,
       skip: (queryData.pageNumber - 1) * queryData.pageSize,
       relations: ['questions'],
-    });
-  }
-
-  async findAllCurrentUserGamesForStat(userId: string) {
-    return this.dbGamesRepository.find({
-      where: [{ firstPlayerId: userId }, { secondPlayerId: userId }],
     });
   }
 
@@ -115,6 +148,16 @@ export class GamesRepository {
   async createNewGame(newGame: Games) {
     await this.dbGamesRepository.insert(newGame);
     return newGame;
+  }
+
+  async updateGamesCountUserStat(userId: string) {
+    await this.dbStatisticsRepository
+      .createQueryBuilder()
+      .update()
+      .set({ gamesCount: () => 'gamesCount + 1' })
+      .where('userId = :userId', { userId: userId })
+      .execute();
+    return true;
   }
 
   async findGameById(gameId: string) {

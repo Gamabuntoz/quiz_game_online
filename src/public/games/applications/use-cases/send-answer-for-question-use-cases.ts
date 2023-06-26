@@ -5,6 +5,7 @@ import { Result, ResultCode } from '../../../../helpers/contract';
 import { Answers } from '../answers.entity';
 import { v4 as uuidv4 } from 'uuid';
 import { UnauthorizedException } from '@nestjs/common';
+import { Games } from '../games.entity';
 
 export class SendAnswerCommand {
   constructor(public inputData: InputAnswerDTO, public userId: string) {}
@@ -37,8 +38,14 @@ export class SendAnswerUseCases implements ICommandHandler<SendAnswerCommand> {
           null,
           'User already answered to all questions',
         );
-      const currentQuestion = game.questions[playerAnswers.length];
-      console.table(game.questions);
+      if (
+        game.timerForEndGame &&
+        new Date().getTime() - game.timerForEndGame > 10000
+      ) {
+      }
+      const currentQuestion = game.questions.find(
+        (q) => q.id === game.questionsId[playerAnswers.length],
+      );
       const newAnswer: Answers = {
         id: uuidv4(),
         questionId: currentQuestion.id,
@@ -59,7 +66,16 @@ export class SendAnswerUseCases implements ICommandHandler<SendAnswerCommand> {
           game.id,
           isFirstPlayer ? game.secondPlayerId : game.firstPlayerId,
         );
-      if (playerAnswers.length + 1 + secondPlayerAnswers.length === 10) {
+      if (
+        game.timerForEndGame &&
+        new Date().getTime() - game.timerForEndGame > 10000
+      ) {
+        playerAnswers.length = 5;
+      }
+      if (playerAnswers.length + 1 === 5 && !game.timerForEndGame) {
+        game.timerForEndGame = new Date().getTime();
+      }
+      if (playerAnswers.length + 1 + secondPlayerAnswers.length >= 10) {
         game.status = 'Finished';
         game.finishGameDate = new Date();
         if (
@@ -75,8 +91,10 @@ export class SendAnswerUseCases implements ICommandHandler<SendAnswerCommand> {
         if (game.firstPlayerScore < game.secondPlayerScore) {
           game.winner = 2;
         }
+        await this.updateGamesUserStat(true, game);
+        await this.updateGamesUserStat(false, game);
       }
-      const result = await this.gamesRepository.updateGame(game);
+      await this.gamesRepository.updateGame(game);
       const viewAnswer: AnswerViewDTO = {
         questionId: currentQuestion.id,
         answerStatus: newAnswer.answerStatus,
@@ -87,5 +105,34 @@ export class SendAnswerUseCases implements ICommandHandler<SendAnswerCommand> {
       console.log(e);
       throw new UnauthorizedException();
     }
+  }
+
+  private async updateGamesUserStat(isFirstPlayer: boolean, game: Games) {
+    const userId = isFirstPlayer ? game.firstPlayerId : game.secondPlayerId;
+    const gamesStatistic = await this.gamesRepository.findGamesUserStat(userId);
+    gamesStatistic.sumScore =
+      +gamesStatistic.sumScore +
+      (isFirstPlayer ? game.firstPlayerScore : game.secondPlayerScore);
+    if (
+      (game.winner === 1 && isFirstPlayer) ||
+      (game.winner === 2 && !isFirstPlayer)
+    ) {
+      gamesStatistic.winsCount = +gamesStatistic.winsCount + 1;
+    } else if (
+      (game.winner === 2 && isFirstPlayer) ||
+      (game.winner === 1 && !isFirstPlayer)
+    ) {
+      gamesStatistic.lossesCount = +gamesStatistic.lossesCount + 1;
+    } else {
+      gamesStatistic.drawsCount = +gamesStatistic.drawsCount + 1;
+    }
+    gamesStatistic.avgScores =
+      gamesStatistic.sumScore % gamesStatistic.gamesCount === 0
+        ? gamesStatistic.sumScore / gamesStatistic.gamesCount
+        : parseFloat(
+            (gamesStatistic.sumScore / gamesStatistic.gamesCount).toFixed(2),
+          );
+    await this.gamesRepository.saveGamesUserStat(gamesStatistic);
+    return true;
   }
 }

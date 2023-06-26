@@ -27,6 +27,8 @@ export class Games {
   firstPlayerScore: number;
   @Column({ nullable: true })
   secondPlayerId: string | null;
+  @Column({ type: 'numeric', nullable: true })
+  timerForEndGame: number;
   @Column({ nullable: true })
   secondPlayerLogin: string | null;
   @Column()

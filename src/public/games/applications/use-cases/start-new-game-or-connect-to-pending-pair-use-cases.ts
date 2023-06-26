@@ -38,6 +38,7 @@ export class StartNewGameUseCases
       user.login,
     );
     if (gameInPending) {
+      await this.gamesRepository.updateGamesCountUserStat(user.id);
       const currentUserGame = await this.gamesService.createGameView(
         gameInPending as Games,
       );
@@ -58,8 +59,10 @@ export class StartNewGameUseCases
       questions: [],
       questionsId: [],
       winner: 0,
+      timerForEndGame: null,
     };
     await this.gamesRepository.createNewGame(newGame);
+    await this.gamesRepository.updateGamesCountUserStat(user.id);
     const currentUserGame = await this.gamesService.createGameView(newGame);
     return new Result<GameViewDTO>(ResultCode.Success, currentUserGame, null);
   }

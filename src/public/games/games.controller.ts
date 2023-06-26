@@ -19,6 +19,7 @@ import {
   InputAnswerDTO,
   InputId,
   QueryGamesDTO,
+  QueryTopPlayersDTO,
 } from './applications/games.dto';
 import { StartNewGameCommand } from './applications/use-cases/start-new-game-or-connect-to-pending-pair-use-cases';
 
@@ -66,6 +67,16 @@ export class GamesController {
     const result = await this.gamesService.findCurrentUserGamesStatistic(
       currentUserId,
     );
+    if (result.code !== ResultCode.Success) {
+      Result.sendResultError(result.code);
+    }
+    return result.data;
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @Get('users/top')
+  async findTopPlayers(@Query() queryData: QueryTopPlayersDTO) {
+    const result = await this.gamesService.findTopPlayers(queryData);
     if (result.code !== ResultCode.Success) {
       Result.sendResultError(result.code);
     }

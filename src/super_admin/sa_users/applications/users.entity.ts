@@ -1,5 +1,13 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinTable,
+  OneToMany,
+  OneToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { Devices } from '../../../public/devices/applications/devices.entity';
+import { Statistics } from '../../../public/games/applications/statistics.entity';
 
 @Entity()
 export class Users {
@@ -31,4 +39,6 @@ export class Users {
   userBanDate: string | null;
   @OneToMany(() => Devices, (d) => d.user, {})
   devices: Devices[];
+  @OneToOne(() => Statistics, (s) => s.user, {})
+  statistic?: Statistics;
 }

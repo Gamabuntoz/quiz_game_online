@@ -70,3 +70,26 @@ export class GameStatisticView {
     public drawsCount: number,
   ) {}
 }
+
+export class GameStatisticTopPlayerView {
+  constructor(
+    public sumScore: number,
+    public avgScores: number,
+    public gamesCount: number,
+    public winsCount: number,
+    public lossesCount: number,
+    public drawsCount: number,
+    public player: {
+      id: string;
+      login: string;
+    },
+  ) {}
+}
+
+export class QueryTopPlayersDTO {
+  constructor(
+    public sort: string | string[] = ['avgScores desc', 'sumScore desc'],
+    public pageNumber: number = 1,
+    public pageSize: number = 10,
+  ) {}
+}

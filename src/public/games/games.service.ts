@@ -1,14 +1,19 @@
 import { Injectable } from '@nestjs/common';
 import {
+  GameStatisticTopPlayerView,
   GameStatisticView,
   GameViewDTO,
   QueryGamesDTO,
+  QueryTopPlayersDTO,
 } from './applications/games.dto';
 import { Result, ResultCode } from '../../helpers/contract';
 import { Games } from './applications/games.entity';
 import { Answers } from './applications/answers.entity';
 import { GamesRepository } from './games.repository';
 import { Paginated } from '../../helpers/paginated';
+import { Column, JoinTable, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Users } from '../../super_admin/sa_users/applications/users.entity';
+import { Statistics } from './applications/statistics.entity';
 
 @Injectable()
 export class GamesService {
@@ -47,47 +52,19 @@ export class GamesService {
   async findCurrentUserGamesStatistic(
     userId: string,
   ): Promise<Result<GameStatisticView>> {
-    const allUserGames: Games[] =
-      await this.gamesRepository.findAllCurrentUserGamesForStat(userId);
-    const gamesStatistic = {
-      sumScore: 0,
-      avgScores: 0,
-      gamesCount: allUserGames.length,
-      winsCount: 0,
-      lossesCount: 0,
-      drawsCount: 0,
+    const gamesStatistic = await this.gamesRepository.findGamesUserStat(userId);
+    const gamesStatisticView = {
+      id: gamesStatistic.id,
+      sumScore: gamesStatistic.sumScore,
+      avgScores: gamesStatistic.avgScores,
+      gamesCount: gamesStatistic.gamesCount,
+      winsCount: gamesStatistic.winsCount,
+      lossesCount: gamesStatistic.lossesCount,
+      drawsCount: gamesStatistic.drawsCount,
     };
-    allUserGames.forEach((g) => {
-      const isFirstPlayer = g.firstPlayerId === userId;
-      if (isFirstPlayer) {
-        gamesStatistic.sumScore += g.firstPlayerScore;
-        if (g.winner === 1) {
-          gamesStatistic.winsCount += 1;
-        } else if (g.winner === 2) {
-          gamesStatistic.lossesCount += 1;
-        } else {
-          gamesStatistic.drawsCount += 1;
-        }
-      } else {
-        gamesStatistic.sumScore += g.secondPlayerScore;
-        if (g.winner === 2) {
-          gamesStatistic.winsCount += 1;
-        } else if (g.winner === 1) {
-          gamesStatistic.lossesCount += 1;
-        } else {
-          gamesStatistic.drawsCount += 1;
-        }
-      }
-    });
-    gamesStatistic.avgScores =
-      gamesStatistic.sumScore % gamesStatistic.gamesCount === 0
-        ? gamesStatistic.sumScore / gamesStatistic.gamesCount
-        : parseFloat(
-            (gamesStatistic.sumScore / gamesStatistic.gamesCount).toFixed(2),
-          );
     return new Result<GameStatisticView>(
       ResultCode.Success,
-      gamesStatistic,
+      gamesStatisticView,
       null,
     );
   }
@@ -106,6 +83,28 @@ export class GamesService {
       );
     const currentUserGame = await this.createGameView(game);
     return new Result<GameViewDTO>(ResultCode.Success, currentUserGame, null);
+  }
+
+  async findTopPlayers(
+    queryData: QueryTopPlayersDTO,
+  ): Promise<Result<Paginated<GameStatisticTopPlayerView[]>>> {
+    const totalCount = await this.gamesRepository.totalCountPlayersGamesStat();
+    const statTopPlayers = await this.gamesRepository.findTopPlayersGamesStat(
+      queryData,
+    );
+    const paginatedStatistics = await Paginated.getPaginated<
+      GameStatisticTopPlayerView[]
+    >({
+      pageNumber: queryData.pageNumber,
+      pageSize: queryData.pageSize,
+      totalCount: totalCount,
+      items: statTopPlayers.map((s) => this.createTopPlayersStatView(s)),
+    });
+    return new Result<Paginated<GameStatisticTopPlayerView[]>>(
+      ResultCode.Success,
+      paginatedStatistics,
+      null,
+    );
   }
 
   async findGameById(
@@ -130,6 +129,21 @@ export class GamesService {
       );
     const currentUserGame = await this.createGameView(game);
     return new Result<GameViewDTO>(ResultCode.Success, currentUserGame, null);
+  }
+
+  createTopPlayersStatView(stat: Statistics) {
+    return {
+      sumScore: stat.sumScore,
+      avgScores: stat.avgScores,
+      gamesCount: stat.gamesCount,
+      winsCount: stat.winsCount,
+      lossesCount: stat.lossesCount,
+      drawsCount: stat.drawsCount,
+      player: {
+        id: stat.userId,
+        login: stat.userLogin,
+      },
+    };
   }
 
   async createGameView(game: Games): Promise<GameViewDTO> {
