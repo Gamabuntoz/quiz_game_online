@@ -61,6 +61,7 @@ import { Answers } from './public/games/applications/answers.entity';
 import { Games } from './public/games/applications/games.entity';
 import { GameQuestions } from './public/games/applications/questions_for_game.entity';
 import { Statistics } from './public/games/applications/statistics.entity';
+import { ScheduleModule } from '@nestjs/schedule';
 
 const useCases = [
   SendAnswerUseCases,
@@ -148,6 +149,7 @@ const controllers = [
       GameQuestions,
       Statistics,
     ]),
+    ScheduleModule.forRoot(),
   ],
   controllers: [...controllers],
   providers: [

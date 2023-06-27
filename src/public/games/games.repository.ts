@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Games } from './applications/games.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { IsNull, Not, Repository } from 'typeorm';
 import { Answers } from './applications/answers.entity';
 import { Questions } from '../../super_admin/sa_quiz/applications/questions.entity';
 import { QueryGamesDTO, QueryTopPlayersDTO } from './applications/games.dto';
@@ -69,6 +69,15 @@ export class GamesRepository {
     let sortBy: any = {
       pairCreatedDate: 'DESC',
     };
+    if (
+      queryData.sortBy &&
+      queryData.sortBy === 'pairCreatedDate' &&
+      queryData.sortDirection === 'asc'
+    ) {
+      sortBy = {
+        pairCreatedDate: 'ASC',
+      };
+    }
     if (queryData.sortBy && queryData.sortBy !== 'pairCreatedDate') {
       sortBy = {
         [queryData.sortBy]: queryData.sortDirection.toUpperCase(),
@@ -163,6 +172,13 @@ export class GamesRepository {
   async findGameById(gameId: string) {
     return this.dbGamesRepository.findOne({
       where: { id: gameId },
+      relations: ['questions'],
+    });
+  }
+
+  async findActiveGameByTimer() {
+    return this.dbGamesRepository.findOne({
+      where: { status: 'Active', timerForEndGame: Not(IsNull()) },
       relations: ['questions'],
     });
   }

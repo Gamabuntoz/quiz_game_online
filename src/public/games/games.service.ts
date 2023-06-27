@@ -11,8 +11,6 @@ import { Games } from './applications/games.entity';
 import { Answers } from './applications/answers.entity';
 import { GamesRepository } from './games.repository';
 import { Paginated } from '../../helpers/paginated';
-import { Column, JoinTable, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
-import { Users } from '../../super_admin/sa_users/applications/users.entity';
 import { Statistics } from './applications/statistics.entity';
 
 @Injectable()

@@ -6,6 +6,7 @@ import { Answers } from '../answers.entity';
 import { v4 as uuidv4 } from 'uuid';
 import { UnauthorizedException } from '@nestjs/common';
 import { Games } from '../games.entity';
+import { Cron, CronExpression, SchedulerRegistry } from '@nestjs/schedule';
 
 export class SendAnswerCommand {
   constructor(public inputData: InputAnswerDTO, public userId: string) {}
@@ -13,7 +14,10 @@ export class SendAnswerCommand {
 
 @CommandHandler(SendAnswerCommand)
 export class SendAnswerUseCases implements ICommandHandler<SendAnswerCommand> {
-  constructor(private gamesRepository: GamesRepository) {}
+  constructor(
+    private gamesRepository: GamesRepository,
+    private schedulerRegistry: SchedulerRegistry,
+  ) {}
 
   async execute(command: SendAnswerCommand): Promise<Result<AnswerViewDTO>> {
     try {
@@ -38,11 +42,6 @@ export class SendAnswerUseCases implements ICommandHandler<SendAnswerCommand> {
           null,
           'User already answered to all questions',
         );
-      if (
-        game.timerForEndGame &&
-        new Date().getTime() - game.timerForEndGame > 10000
-      ) {
-      }
       const currentQuestion = game.questions.find(
         (q) => q.id === game.questionsId[playerAnswers.length],
       );
@@ -66,16 +65,10 @@ export class SendAnswerUseCases implements ICommandHandler<SendAnswerCommand> {
           game.id,
           isFirstPlayer ? game.secondPlayerId : game.firstPlayerId,
         );
-      if (
-        game.timerForEndGame &&
-        new Date().getTime() - game.timerForEndGame > 10000
-      ) {
-        playerAnswers.length = 5;
-      }
-      if (playerAnswers.length + 1 === 5 && !game.timerForEndGame) {
+      if (playerAnswers.length + 1 === 5 && secondPlayerAnswers.length < 5) {
         game.timerForEndGame = new Date().getTime();
       }
-      if (playerAnswers.length + 1 + secondPlayerAnswers.length >= 10) {
+      if (playerAnswers.length + 1 + secondPlayerAnswers.length === 10) {
         game.status = 'Finished';
         game.finishGameDate = new Date();
         if (
@@ -105,6 +98,49 @@ export class SendAnswerUseCases implements ICommandHandler<SendAnswerCommand> {
       console.log(e);
       throw new UnauthorizedException();
     }
+  }
+
+  @Cron(CronExpression.EVERY_SECOND, { name: 'finishGameByTimer' })
+  async finishGameByTimer() {
+    const game = await this.gamesRepository.findActiveGameByTimer();
+    if (!game) {
+      return true;
+    }
+    if (new Date().getTime() - game.timerForEndGame > 9000) {
+      const firstPlayerAnswers: Answers[] =
+        await this.gamesRepository.findPlayerGameAnswers(
+          game.id,
+          game.firstPlayerId,
+        );
+      const secondPlayerAnswers: Answers[] =
+        await this.gamesRepository.findPlayerGameAnswers(
+          game.id,
+          game.secondPlayerId,
+        );
+      let isFirstPlayer = firstPlayerAnswers.length === 5;
+      if (firstPlayerAnswers.length + secondPlayerAnswers.length === 10) {
+        isFirstPlayer =
+          firstPlayerAnswers[5].addedAt < secondPlayerAnswers[5].addedAt;
+      }
+      game.status = 'Finished';
+      game.finishGameDate = new Date();
+      if (
+        isFirstPlayer ? game.firstPlayerScore > 0 : game.secondPlayerScore > 0
+      ) {
+        isFirstPlayer
+          ? (game.firstPlayerScore += 1)
+          : (game.secondPlayerScore += 1);
+      }
+    }
+    if (game.firstPlayerScore > game.secondPlayerScore) {
+      game.winner = 1;
+    }
+    if (game.firstPlayerScore < game.secondPlayerScore) {
+      game.winner = 2;
+    }
+    await this.updateGamesUserStat(true, game);
+    await this.updateGamesUserStat(false, game);
+    await this.gamesRepository.updateGame(game);
   }
 
   private async updateGamesUserStat(isFirstPlayer: boolean, game: Games) {
